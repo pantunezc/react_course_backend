@@ -6,7 +6,6 @@ const morgan = require("morgan");
 const app = express();
 const Person = require("./models/person");
 
-let persons = [];
 app.use(cors());
 app.use(express.json());
 app.use(morgan(":method :url :status :res[content-length] - :response-time ms :body "));
@@ -57,10 +56,14 @@ app.get("/api/persons", (request, response) => {
 });
 
 app.delete("/api/persons/:id", (request, response) => {
-  const id = Number(request.params.id);
-  persons = persons.filter((person) => person.id !== id);
-
-  response.status(204).end();
+  Person.findByIdAndDelete(request.params.id)
+    .then((result) => {
+      response.status(204).end();
+    })
+    .catch((error) => {
+      console.error(error);
+      response.status(500).end();
+    });
 });
 
 app.get("/api/persons/:id", (request, response) => {
